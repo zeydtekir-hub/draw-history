@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090a0a" />
+    <meta name="description" content="Draw History — a historical map editor." />
+    <title>Draw History Studio</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Draw History home">
+          <span class="brand-mark" aria-hidden="true">DH</span>
+          <span>DRAW <b>HISTORY</b></span>
+        </a>
+        <nav class="main-nav" aria-label="Main navigation">
+          <button class="nav-link active" data-page="studio">Build a Map</button>
+          <button class="nav-link" data-page="databank">Data Bank</button>
+        </nav>
+        <div class="topbar-right">
+          <span class="connection-indicator" id="account-status">Local workspace</span>
+          <button class="button button-quiet" id="account-button">Sign in</button>
+        </div>
+      </header>
+
+      <main id="studio-page" class="page">
+        <section class="editor-header">
+          <div class="project-title">
+            <span class="project-glyph" aria-hidden="true">◇</span>
+            <div>
+              <strong>Draw History Studio</strong>
+              <span id="save-status">Saved in this browser</span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <label class="search-wrap" for="map-search">
+              <span aria-hidden="true">⌕</span>
+              <input id="map-search" type="search" placeholder="Find a place…" autocomplete="off" />
+            </label>
+            <button class="button button-quiet" id="import-button">Import</button>
+            <input id="geojson-file" type="file" accept=".json,.geojson,application/geo+json,application/json" hidden />
+            <button class="button button-primary" id="export-button">Export</button>
+            <button class="icon-button" id="undo-button" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
+            <button class="icon-button" id="redo-button" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
+            <button class="icon-button danger-quiet" id="clear-button" title="Clear workspace" aria-label="Clear workspace">×</button>
+          </div>
+        </section>
+
+        <section class="editor-shell">
+          <aside class="tool-rail" aria-label="Map tools">
+            <div class="tool-group">
+              <button class="tool-button selected" data-tool="select" title="Select">
+                <span class="tool-icon">↖</span><span>Select</span>
+              </button>
+              <button class="tool-button" data-tool="pen" title="Draw polygon">
+                <span class="tool-icon">⌁</span><span>Pen</span>
+              </button>
+              <button class="tool-button" data-tool="add" title="Add or move vertices">
+                <span class="tool-icon">＋</span><span>Add</span>
+              </button>
+              <button class="tool-button" data-tool="delete" title="Delete a whole shape">
+                <span class="tool-icon">−</span><span>Delete</span>
+              </button>
+            </div>
+            <div class="rail-divider"></div>
+            <button class="tool-button" id="snap-button" aria-pressed="true" title="Toggle snapping">
+              <span class="tool-icon snap-icon">⌖</span><span>Snap</span>
+              <span class="toggle-dot" aria-hidden="true"></span>
+            </button>
+            <button class="tool-button" id="fit-button" title="Fit all visible geometry">
+              <span class="tool-icon">⛶</span><span>Fit</span>
+            </button>
+            <div class="rail-spacer"></div>
+            <button class="tool-button help-tool" id="shortcuts-button" title="Keyboard shortcuts">
+              <span class="tool-icon">?</span><span>Help</span>
+            </button>
+          </aside>
+
+          <div class="map-stage">
+            <div id="map" aria-label="Interactive map"></div>
+            <div class="map-vignette" aria-hidden="true"></div>
+            <div id="map-loading" class="map-loading">
+              <span class="spinner"></span><span>Loading satellite map…</span>
+            </div>
+            <div id="map-error" class="map-error hidden"></div>
+            <div id="pen-toolbar" class="floating-toolbar hidden">
+              <span class="pen-label">PEN</span>
+              <span id="pen-count" class="point-count">0 points</span>
+              <span class="toolbar-separator"></span>
+              <button class="mini-button" id="pen-undo">Undo</button>
+              <button class="mini-button" id="pen-redo">Redo</button>
+              <button class="mini-button finish-button" id="pen-finish">Finish <kbd>Enter</kbd></button>
+              <button class="mini-button cancel-button" id="pen-cancel">Cancel <kbd>Esc</kbd></button>
+            </div>
+            <div id="snap-indicator" class="snap-indicator hidden"><span></span> SNAP</div>
+            <div class="map-attribution-note">© MapTiler · © OpenStreetMap contributors</div>
+          </div>
+
+          <aside class="workspace-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow">EDITOR PANEL</span>
+                <h1>Workspace</h1>
+              </div>
+              <span class="live-pill"><i></i> LIVE</span>
+            </div>
+            <div class="panel-tabs" role="tablist">
+              <button class="panel-tab active" data-panel="layers" role="tab">Layers</button>
+              <button class="panel-tab" data-panel="operations" role="tab">Operations</button>
+              <button class="panel-tab" data-panel="project" role="tab">Project</button>
+              <button class="panel-tab" data-panel="media" role="tab">Media</button>
+            </div>
+            <div class="panel-content" id="panel-content"></div>
+          </aside>
+        </section>
+
+        <footer class="statusbar">
+          <div class="status-left">
+            <span class="status-clean"><i></i><span id="geometry-status">No geometry</span></span>
+            <span>Lat <b id="cursor-lat">—</b></span>
+            <span>Lng <b id="cursor-lng">—</b></span>
+            <span>Zoom <b id="zoom-level">—</b></span>
+          </div>
+          <div class="status-right">
+            <span><b id="feature-count">0</b> features</span>
+            <span><b id="vertex-count">0</b> vertices</span>
+            <span><b id="total-area">0 km²</b></span>
+          </div>
+        </footer>
+      </main>
+
+      <main id="databank-page" class="page databank-page hidden">
+        <section class="databank-heading">
+          <span class="eyebrow">PUBLIC GEOJSON ARCHIVE</span>
+          <div class="databank-title-row">
+            <div>
+              <h1>Data Bank</h1>
+              <p>Explore historical regions published by the Draw History community.</p>
+            </div>
+            <button class="button button-primary" id="databank-refresh">Refresh archive</button>
+          </div>
+        </section>
+        <section class="archive-controls">
+          <label class="archive-search">
+            <span aria-hidden="true">⌕</span>
+            <input id="archive-search" type="search" placeholder="Search maps by name or year…" />
+          </label>
+          <label class="sort-control">Sort by
+            <select id="archive-sort">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="name-asc">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+              <option value="year-asc">Year ascending</option>
+              <option value="year-desc">Year descending</option>
+            </select>
+          </label>
+        </section>
+        <div id="archive-message" class="archive-message hidden"></div>
+        <section id="archive-list" class="archive-grid" aria-live="polite"></section>
+      </main>
+
+      <div id="modal-root"></div>
+      <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
