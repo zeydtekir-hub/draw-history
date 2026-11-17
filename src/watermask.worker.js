@@ -5,7 +5,7 @@ let oceanGeometry;
 async function loadOcean() {
   if (oceanGeometry) return oceanGeometry;
   self.postMessage({ type: 'progress', percent: 5, message: 'Loading ocean dataset…' });
-  const response = await fetch('/ne_10m_ocean.geojson');
+  const response = await fetch(`${import.meta.env.BASE_URL}ne_10m_ocean.geojson`);
   if (!response.ok) {
     throw new Error('Ocean dataset not found. Place ne_10m_ocean.geojson in the public folder.');
   }

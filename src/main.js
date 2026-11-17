@@ -1423,7 +1423,7 @@ async function initializeSupabaseAuth() {
 
 async function checkOceanDataset() {
   try {
-    const response = await fetch('/ne_10m_ocean.geojson', { method: 'HEAD' });
+    const response = await fetch(`${import.meta.env.BASE_URL}ne_10m_ocean.geojson`, { method: 'HEAD' });
     oceanDatasetAvailable = response.ok;
     oceanDatasetStatus = response.ok
       ? 'Ocean dataset ready · Natural Earth 1:10m'
