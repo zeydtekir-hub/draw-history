@@ -19,11 +19,17 @@ Data Bank, account sign-in, and publishing are backed by Supabase when configure
 
 ## GitHub Pages deployment
 
-The workflow in `.github/workflows/deploy.yml` builds and deploys the site from the `main` branch. Add these repository Actions secrets before deploying:
+The workflow in `.github/workflows/deploy.yml` builds and deploys the site from the `main` branch at `https://zeydtekir-hub.github.io/draw-history/`. Add these repository Actions secrets before deploying:
 
-- `VITE_MAPTILER_KEY` — the MapTiler style URL or API key. Restrict the key to `draw.js-ossy.com`.
+- `VITE_MAPTILER_KEY` — the MapTiler style URL or API key. Restrict the key to `zeydtekir-hub.github.io`.
 - `VITE_SUPABASE_URL` — the Supabase project URL.
 - `VITE_SUPABASE_ANON_KEY` — the public anon/publishable key, never a service-role key.
 
-The site includes `public/CNAME` for `draw.js-ossy.com`. At the domain's DNS provider, create a CNAME record named `draw` pointing to `<github-owner>.github.io`. In the repository, enable **Settings → Pages → GitHub Actions**. After DNS propagates and GitHub provisions TLS, enable **Enforce HTTPS**.
+In the repository, enable **Settings → Pages → GitHub Actions**.
+
+## Google sign-in
+
+Google sign-in uses Supabase OAuth. In the Supabase dashboard, enable **Authentication → Sign In / Providers → Google** and add the Google OAuth client ID and secret. In Google Cloud, use the callback URL shown by Supabase as the authorized redirect URI (normally `https://<project-ref>.supabase.co/auth/v1/callback`).
+
+Add `https://zeydtekir-hub.github.io/draw-history/` to Supabase **Authentication → URL Configuration → Redirect URLs**. For local development, also allow `http://127.0.0.1:5173/`.
 

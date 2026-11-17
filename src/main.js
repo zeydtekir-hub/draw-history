@@ -1011,6 +1011,8 @@ function openAuthModal() {
       <label>Password<input name="password" type="password" required minlength="6" autocomplete="current-password"></label>
       <p class="form-error hidden" id="auth-error"></p>
       <div class="modal-actions"><button class="button button-quiet" type="button" id="sign-up-button">Create account</button><button class="button button-primary" type="submit">Sign in</button></div>
+      <div class="auth-divider"><span>or</span></div>
+      <button class="button button-quiet google-sign-in-button" type="button" id="google-sign-in-button">Continue with Google</button>
     </form>`, () => {
     const form = $('#auth-form');
     const errorNode = $('#auth-error');
@@ -1044,6 +1046,24 @@ function openAuthModal() {
         errorNode.textContent = error.message;
         errorNode.classList.remove('hidden');
       });
+    });
+    $('#google-sign-in-button').addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      button.textContent = 'Redirecting to Google…';
+      errorNode.classList.add('hidden');
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: `${window.location.origin}${window.location.pathname}` },
+        });
+        if (error) throw error;
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = 'Continue with Google';
+        errorNode.textContent = error.message;
+        errorNode.classList.remove('hidden');
+      }
     });
   });
 }
