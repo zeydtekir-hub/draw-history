@@ -38,9 +38,9 @@ const maptilerKey = (() => {
     return '';
   }
 })();
-const supabaseUrl = env.VITE_SUPABASE_URL || 'https://qazirczodfolcogqntvr.supabase.co';
-const supabaseKey = env.VITE_SUPABASE_ANON_KEY || '';
-const supabase = supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+const supabaseUrl = (env.VITE_SUPABASE_URL || '').trim();
+const supabaseKey = (env.VITE_SUPABASE_ANON_KEY || '').trim();
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 const STORAGE_KEY = 'draw-history-project-v1';
 
 function escapeHtml(value) {
@@ -910,7 +910,7 @@ function openExportModal() {
 }
 
 async function publishMap(values) {
-  if (!supabase) throw new Error('Supabase is not configured. Add VITE_SUPABASE_ANON_KEY to .env.local and restart Vite.');
+  if (!supabase) throw new Error('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local and restart Vite.');
   if (!currentUser) throw new Error('Sign in before publishing. Your local GeoJSON download is available separately.');
   const { data, error } = await supabase.from('maps').insert({
     name: values.name,
@@ -1073,7 +1073,7 @@ async function loadArchive() {
   const message = $('#archive-message');
   message.classList.remove('hidden', 'archive-error');
   if (!supabase) {
-    archiveError = 'Supabase is not configured. Add VITE_SUPABASE_ANON_KEY to .env.local to load the real public archive.';
+    archiveError = 'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local to load the real public archive.';
     message.textContent = archiveError;
     message.classList.add('archive-error');
     archiveItems = [];
